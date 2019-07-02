@@ -1,10 +1,11 @@
+import io
 from random import randrange, choice
 
-from discord.ext import commands
+import aiohttp
 import discord
 import rule34
-import aiohttp
-import io
+from discord.ext import commands
+
 
 class Randoms(commands.Cog):
     def __init__(self, bot):

@@ -3,10 +3,7 @@
 # TODO: Get this working using byte blobs so we can keep everything in memory and never have to save (ideally)
 # This should probably be asyncd because this shit will interrupt a fuck ton.
 
-import os
 from wand.image import Image
-from subprocess import call
-import aiohttp
 
 
 def create_thumb(fobject=None):
