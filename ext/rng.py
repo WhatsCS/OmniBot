@@ -13,8 +13,8 @@ class Randoms(commands.Cog):
         self.images = rule34.Rule34(self.bot.loop)
         self.img_l = []
 
-    @commands.command(aliases=['rtd', 'd'])
-    async def roll_the_dice(self, ctx, roll):
+    @commands.command(aliases=['rtd', 'd', 'dice'])
+    async def roll_the_dice(self, ctx: commands.Context, roll: str):
         count, dice = roll.split('d')
         result = []
         count, dice = (int(count), int(dice))
@@ -31,11 +31,11 @@ class Randoms(commands.Cog):
     @commands.command()
     @commands.is_nsfw()
     @commands.cooldown(1, 5)
-    async def r34(self, ctx, query, list=False):
+    async def r34(self, ctx: commands.Context, query: str, list: bool=False):
         # I have code for requesting a list but no clue if going to properly implement
         self.img_l = await self.images.getImageURLS(query)
         if self.img_l is None:
-            ctx.send(f'nothing found for {query}')
+            await ctx.send(f'nothing found for {query}')
             return
 
         img_blob = b''

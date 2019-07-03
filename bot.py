@@ -38,6 +38,7 @@ class OmniBot(commands.Bot):
         # General config info for before the bot loads
         self.token = self.config['General']['token']
         self.owner_id = self.config['General']['owner_id']
+        self.crypto_token = self.config['General']['crypto_token']
 
         # Initialize the bot further to give access to extension/cog/command stuffs
         super().__init__(command_prefix=self.config['General']['command_prefix'],
