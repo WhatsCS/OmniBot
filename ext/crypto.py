@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 import discord
 from discord.ext import commands
-from utils import CoinAPI
+from CoinMarketCapAsyncPy import CoinAPI
 
 class Crypto(commands.Cog):
     def __init__(self, bot: commands.bot):
