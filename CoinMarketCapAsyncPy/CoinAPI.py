@@ -1,12 +1,48 @@
 import asyncio
 import aiohttp
 
-class CoinAPI():
+
+class CoinAPI:
     def __init__(self, api_token, loop):
         self.api_token = api_token
         self.loop = loop
-        self.session = aiohttp.ClientSession(loop=loop)
+        self.timeout = aiohttp.ClientTimeout(total=60)
         self.headers = {'X-CMC_PRO_API_KEY': self.api_token}
+        self.session = aiohttp.ClientSession(loop=loop, headers=self.headers)
+        self.url = 'https://sandbox-api.coinmarketcap.com/v1'
+        self.crypto_map = []
 
-    async def get_crypto(self, crypto_id,):
-        pass
+    async def _setup(self):
+        if self.session.closed:
+            self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers, timeout=self.timeout)
+        params = {'listing_status': 'active'}
+        async with self.session.get(url=f'{self.url}/cryptocurrency/map', params=params) as resp:
+            tmp_map = await resp.json()
+            for item in tmp_map['data']:
+                tmp_dict = {}
+                for key, value in item.items():
+                    if key == "id" or key == "name" or key == "symbol":
+                        tmp_dict[key] = value
+                self.crypto_map.append(tmp_dict)
+        await self.session.close()
+
+    async def get_crypto(self, crypto):
+        query = None
+        if self.session.closed:
+            self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers)
+        if type(crypto) is str:
+            for item in self.crypto_map:
+                if crypto == item.get('name') or crypto == item.get('symbol'):
+                    query = item.get('id')
+                    break
+        print(f'query = {query}')
+        async with self.session.get(url=f'{self.url}/cryptocurrency/quotes/latest', params={'id': f'{query}'}) as resp:
+            data = await resp.json()
+        await self.session.close()
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    coin = CoinAPI(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop)
+    loop.run_until_complete(coin._setup())
+    loop.run_until_complete(coin.get_crypto('BTC'))
