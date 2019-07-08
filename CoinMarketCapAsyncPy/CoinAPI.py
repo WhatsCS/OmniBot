@@ -28,6 +28,7 @@ class CoinAPI:
 
     async def get_crypto(self, crypto):
         query = None
+        result = 1
         if self.session.closed:
             self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers)
         if type(crypto) is str:
@@ -35,14 +36,42 @@ class CoinAPI:
                 if crypto == item.get('name') or crypto == item.get('symbol'):
                     query = item.get('id')
                     break
-        print(f'query = {query}')
+        elif type(crypto) is list:
+            n_map = []
+            for i in crypto:
+                for item in self.crypto_map:
+                    if i == item.get('name') or i == item.get('symbol'):
+                        n_map.append(str(item.get('id')))
+                        break
+                    elif i == item.get('id'):
+                        n_map.append(str(i))
+                        break
+            query = ','.join(n_map)
+        else:
+            return result
+
+        if query is None:
+            raise AttributeError
+
         async with self.session.get(url=f'{self.url}/cryptocurrency/quotes/latest', params={'id': f'{query}'}) as resp:
             data = await resp.json()
+            try:
+                result = data['data']
+            except KeyError:
+                result = data['status']
+
         await self.session.close()
+        return result
+
+
+async def main(api_token, loop):
+    api = CoinAPI(api_token=api_token, loop=loop)
+    await api._setup()
+    return api
 
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    coin = CoinAPI(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop)
-    loop.run_until_complete(coin._setup())
-    loop.run_until_complete(coin.get_crypto('BTC'))
+    coin = loop.run_until_complete(main(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop))
+    t = loop.run_until_complete(coin.get_crypto(['BTC']))
+    print(t)

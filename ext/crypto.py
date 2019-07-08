@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from CoinMarketCapAsyncPy import CoinAPI
 
+
 class Crypto(commands.Cog):
     def __init__(self, bot: commands.bot):
         self.bot = bot
@@ -27,14 +28,25 @@ class Crypto(commands.Cog):
         msg = '\n'.join(msg_c)
         await ctx.send(f'```\n{msg}```')
 
-    @crypto.command()
+    @crypto.command(aliases=['add', 'aw'])
     async def add_watched(self, ctx: commands.Context, coin: str):
         """Add a new coin to be watched"""
         # TODO: Check the coin is real
         if len(self.coins) == 10:
             await ctx.send('Too many coins already tracked, either remove some coins or... \U0001F643')
+            return
         self.coins.append(coin)
         await ctx.send(f'Success! {coin} has been added, do {ctx.prefix}list to see the new coin.')
+
+    @crypto.command(aliases=['remove', 'r'])
+    async def remove_watched(self, ctx: commands.Context, coin: str):
+        if len(self.coins) == 0:
+            await ctx.send('0 coins on the watch list?! Try adding some rather than removing...')
+            return
+        try:
+            self.coins.remove(coin)
+        except KeyError:
+            await ctx.send(f'{coin} not found in the watch list!')
 
     @crypto.command(aliases=['s'])
     async def search(self, ctx: commands.Context, coin: str, currency: str='USD'):

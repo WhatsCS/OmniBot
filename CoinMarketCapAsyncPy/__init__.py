@@ -1,1 +1,1 @@
-from .CoinAPI import CoinAPI
+from .CoinAPI import main as CoinAPI
