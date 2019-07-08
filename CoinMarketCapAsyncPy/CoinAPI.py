@@ -70,17 +70,6 @@ async def main(api_token, loop):
     await cobj._setup()
     return cobj
 
-<<<<<<<
-async def main(api_token, loop):
-    api = CoinAPI(api_token=api_token, loop=loop)
-    await api._setup()
-    return api
-
-
-=======
-
-
->>>>>>>
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     coin = loop.run_until_complete(main(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop))
