@@ -27,6 +27,7 @@ class CoinAPI:
         await self.session.close()
 
     async def get_crypto(self, crypto):
+        # TODO: implement regex (\b[a-zA-Z]{3,4}\b)
         query = None
         result = 1
         if self.session.closed:

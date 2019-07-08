@@ -9,7 +9,10 @@ class Crypto(commands.Cog):
     def __init__(self, bot: commands.bot):
         self.bot = bot
         self.coins = ['btc', 'eth', 'zen', 'kmd', 'ltc', 'ada']
-        self.api = CoinAPI(api_token=bot.crypto_token, loop=bot.loop)
+        self.api = None
+
+    async def cog_before_invoke(self, ctx):
+        self.api = await CoinAPI(api_token=self.bot.crypto_token, loop=self.bot.loop)
 
     async def _get_price_info(self, currency, coin):
         pass
