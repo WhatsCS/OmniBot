@@ -8,7 +8,7 @@ from CoinMarketCapAsyncPy import CoinAPI
 class Crypto(commands.Cog):
     def __init__(self, bot: commands.bot):
         self.bot = bot
-        self.coins = ['btc', 'eth', 'zen', 'kmd', 'ltc', 'ada']
+        self.coins = ['BTC', 'ETH', 'ZEN', 'KMD', 'LTC', 'ADA']
         self.api = None
 
     async def cog_before_invoke(self, ctx):
@@ -23,13 +23,16 @@ class Crypto(commands.Cog):
             await ctx.send(f'Please use a subcommand or do `{ctx.prefix}help crypto`')
 
     @crypto.command()
+    @commands.cooldown(1, 10)
     async def list(self, ctx: commands.Context, currency: str='USD'):
         """List currently tracked crypto coins in USD. Can specify currency."""
         msg_c = []
-        for coin in self.coins:
-            msg_c.append(f'{coin}\t==>\t{currency}PLACEHOLDER')
-        msg = '\n'.join(msg_c)
-        await ctx.send(f'```\n{msg}```')
+
+        cinfo = await self.api.get_crypto(self.crypto)
+        await ctx.send(f'```json\n{cinfo}\n```')
+        #     msg_c.append(f'```json{cinfo}````')
+        # msg = '\n'.join(msg_c)
+        # await ctx.send(f'{msg}')
 
     @crypto.command(aliases=['add', 'aw'])
     async def add_watched(self, ctx: commands.Context, coin: str):
@@ -59,7 +62,10 @@ class Crypto(commands.Cog):
         :param coin:
         :param currency:
         """
-        pass
+        cinfo = await self.api.get_crypto(coin)
+        await ctx.send(f'```json\n{cinfo}\n```')
+        embed = discord.Embed(title=cinfo['name'])
+
 
 def setup(bot):
     bot.add_cog(Crypto(bot))

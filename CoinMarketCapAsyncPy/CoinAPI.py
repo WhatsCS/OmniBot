@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+from pprint import pprint
 
 
 class CoinAPI:
@@ -8,13 +9,12 @@ class CoinAPI:
         self.loop = loop
         self.timeout = aiohttp.ClientTimeout(total=60)
         self.headers = {'X-CMC_PRO_API_KEY': self.api_token}
-        self.session = aiohttp.ClientSession(loop=loop, headers=self.headers)
+        self.session = None
         self.url = 'https://sandbox-api.coinmarketcap.com/v1'
         self.crypto_map = []
 
     async def _setup(self):
-        if self.session.closed:
-            self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers, timeout=self.timeout)
+        self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers, timeout=self.timeout)
         params = {'listing_status': 'active'}
         async with self.session.get(url=f'{self.url}/cryptocurrency/map', params=params) as resp:
             tmp_map = await resp.json()
@@ -32,6 +32,7 @@ class CoinAPI:
         result = 1
         if self.session.closed:
             self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers)
+
         if type(crypto) is str:
             for item in self.crypto_map:
                 if crypto == item.get('name') or crypto == item.get('symbol'):
@@ -64,15 +65,25 @@ class CoinAPI:
         await self.session.close()
         return result
 
+async def main(api_token, loop):
+    cobj = CoinAPI(api_token, loop)
+    await cobj._setup()
+    return cobj
 
+<<<<<<<
 async def main(api_token, loop):
     api = CoinAPI(api_token=api_token, loop=loop)
     await api._setup()
     return api
 
 
+=======
+
+
+>>>>>>>
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     coin = loop.run_until_complete(main(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop))
-    t = loop.run_until_complete(coin.get_crypto(['BTC']))
-    print(t)
+    coins = ['BTC', 'ETH', 'ZEN', 'KMD', 'LTC', 'ADA']
+    rs = loop.run_until_complete(coin.get_crypto(coins))
+    pprint(rs)
