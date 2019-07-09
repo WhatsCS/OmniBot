@@ -26,10 +26,10 @@ class CoinAPI:
                 self.crypto_map.append(tmp_dict)
         await self.session.close()
 
-    async def get_crypto(self, crypto):
-        # TODO: implement regex (\b[a-zA-Z]{3,4}\b)
+    async def get_crypto(self, crypto, currency: list):
         query = None
-        result = 1
+        curr = ','.join(currency)
+        result = []
         if self.session.closed:
             self.session = aiohttp.ClientSession(loop=self.loop, headers=self.headers)
 
@@ -55,15 +55,22 @@ class CoinAPI:
         if query is None:
             raise AttributeError
 
-        async with self.session.get(url=f'{self.url}/cryptocurrency/quotes/latest', params={'id': f'{query}'}) as resp:
+        async with self.session.get(url=f'{self.url}/cryptocurrency/quotes/latest', params={'id': f'{query}', 'convert': f'{curr}'}) as resp:
             data = await resp.json()
             try:
-                result = data['data']
+                for key, value in data['data'].items():
+                    tmp = {'id': value.get('id'),
+                            'name': value.get('name'),
+                           'symbol': value.get('symbol'),
+                           'currency': value.get('quote')}
+                    #del tmp['currency']['market_cap']
+                    #del tmp['currency']['volume_24h']
+                    result.append(tmp)
             except KeyError:
                 result = data['status']
 
         await self.session.close()
-        return result
+        return result[0] if len(result) == 1 else result
 
 async def main(api_token, loop):
     cobj = CoinAPI(api_token, loop)
@@ -73,6 +80,7 @@ async def main(api_token, loop):
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     coin = loop.run_until_complete(main(api_token='e7266f94-3db8-4a0f-9a5b-90ae14c92dcf', loop=loop))
-    coins = ['BTC', 'ETH', 'ZEN', 'KMD', 'LTC', 'ADA']
-    rs = loop.run_until_complete(coin.get_crypto(coins))
+    coins = ['BTC']
+    convert = ['USD']
+    rs = loop.run_until_complete(coin.get_crypto(coins, convert))
     pprint(rs)
