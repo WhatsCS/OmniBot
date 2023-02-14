@@ -7,10 +7,10 @@ name = "pypi"
 discord-py = "*"
 jishaku = "*"
 watchdog = "*"
-"rule34" = "*"
 wand = "*"
+rule34 = {editable = true, ref = "v1.7.2", git = "https://github.com/WhatsCS/Rule34-API-Wrapper.git"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3.11"
